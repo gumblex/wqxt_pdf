@@ -264,12 +264,13 @@ class WQXTDownloader:
 
     def json_call(self, bookid, url, cache=True):
         cur = self.db.cursor()
+        url = url % bookid
         if cache:
             cur.execute('SELECT value FROM api_cache WHERE url=?', (url,))
             res = cur.fetchone()
             if res:
                 return json.loads(res[0])
-        r = self.session.get(url % bookid, headers={
+        r = self.session.get(url, headers={
             'referer': self.baseurl + str(bookid),
             'sec-fetch-mode': 'cors',
             'sec-fetch-site': 'same-origin',
