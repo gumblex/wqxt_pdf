@@ -346,6 +346,8 @@ class WQXTDownloader:
                 tasks.append(i)
                 logging.info('%s: %s/%s not loaded', bookid, i, page_num)
                 time.sleep(0.5)
+            except Exception:
+                logging.exception('%s: %s/%s', bookid, i, page_num)
         logging.info('%s: Generating PDF', bookid)
         with open("%s-%s.pdf" % (bookid, title), "wb") as f:
             pdf_convert(
