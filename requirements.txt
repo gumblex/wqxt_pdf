@@ -1,0 +1,5 @@
+httpx
+Pillow
+numpy
+img2pdf
+pyjwt
