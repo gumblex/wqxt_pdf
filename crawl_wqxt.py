@@ -317,7 +317,7 @@ class WQXTDownloader:
         self.db.commit()
         return result
 
-    def download_pdf(self, bookid):
+    def download_pdf(self, bookid, convertimg=True):
         logging.info('%s: Loading metadata', bookid)
         r = self.session.get(self.baseurl + str(bookid))
         r.raise_for_status()
@@ -336,8 +336,9 @@ class WQXTDownloader:
         while tasks:
             i = tasks.popleft()
             try:
-                img, imgfmt = imgautocompress.auto_encode(
-                    self.get_img(bookid, i, jwtkey))
+                img = self.get_img(bookid, i, jwtkey)
+                if convertimg:
+                    img, imgfmt = imgautocompress.auto_encode(img)
                 images[i-1] = img
                 logging.info('%s: %s/%s', bookid, i, page_num)
             except TryAgain:
