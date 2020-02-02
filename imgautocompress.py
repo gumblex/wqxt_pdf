@@ -31,7 +31,7 @@ def otsu_threshold(hist):
     return level
 
 
-def auto_downgrade(pil_img, thumb_size=128, grey_cutoff=22, bw_ratio=0.98):
+def auto_downgrade(pil_img, thumb_size=128, grey_cutoff=4, bw_ratio=0.98):
     mode = pil_img.mode
     if mode == '1' and mode not in ('L', 'LA', 'RGB', 'RGBA'):
         # ignore special modes
@@ -47,13 +47,12 @@ def auto_downgrade(pil_img, thumb_size=128, grey_cutoff=22, bw_ratio=0.98):
         if all(x == 255 for x in pil_img.getdata(len(bands) - 1)):
             alpha_band = False
     if bands[:3] == ('R', 'G', 'B'):
-        thumb = pil_img.resize((thumb_size,thumb_size))
-        bias = np.array(ImageStat.Stat(thumb).mean[:3], dtype=float)
-        bias -= bias.mean()
+        thumb = pil_img.resize((thumb_size,thumb_size), resample=Image.NEAREST)
         pixels = np.array(thumb.getdata(), dtype=float)[:, :3]
-        pixels -= pixels.mean(axis=1).reshape((-1, 1)) + bias.reshape((1, 3))
-        mse = np.sum(pixels.flatten()**2) / (thumb_size**2)
-        if mse > grey_cutoff:
+        pixels_max = np.max(pixels, axis=1)
+        pixels_min = np.min(pixels, axis=1)
+        val = np.mean((pixels_max - pixels_min) / 2)
+        if val > grey_cutoff:
             if bands[-1] == 'A' and not alpha_band:
                 return pil_img.convert('RGB')
             else:
@@ -74,7 +73,7 @@ def auto_downgrade(pil_img, thumb_size=128, grey_cutoff=22, bw_ratio=0.98):
     return pil_img
 
 
-def auto_encode(fp, quality=95, thumb_size=128, grey_cutoff=500, bw_ratio=0.98):
+def auto_encode(fp, quality=95, thumb_size=128, grey_cutoff=4, bw_ratio=0.98):
     if isinstance(fp, str):
         with open(fp, 'rb') as f:
             orig_data = f.read()
