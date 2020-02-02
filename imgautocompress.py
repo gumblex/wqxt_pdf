@@ -52,7 +52,6 @@ def auto_downgrade(pil_img, thumb_size=128, grey_cutoff=1, bw_ratio=0.99):
         pixels_max = np.max(pixels, axis=1)
         pixels_min = np.min(pixels, axis=1)
         val = np.mean(pixels_max - pixels_min)
-        print(val)
         if val > grey_cutoff:
             if bands[-1] == 'A' and not alpha_band:
                 return pil_img.convert('RGB')
