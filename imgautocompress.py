@@ -31,7 +31,7 @@ def otsu_threshold(hist):
     return level
 
 
-def auto_downgrade(pil_img, thumb_size=128, grey_cutoff=0.5, bw_ratio=0.99):
+def auto_downgrade(pil_img, thumb_size=128, grey_cutoff=1, bw_ratio=0.99):
     mode = pil_img.mode
     if mode == '1' and mode not in ('L', 'LA', 'RGB', 'RGBA'):
         # ignore special modes
@@ -51,7 +51,7 @@ def auto_downgrade(pil_img, thumb_size=128, grey_cutoff=0.5, bw_ratio=0.99):
         pixels = np.array(thumb.getdata(), dtype=float)[:, :3]
         pixels_max = np.max(pixels, axis=1)
         pixels_min = np.min(pixels, axis=1)
-        val = np.mean((pixels_max - pixels_min) / 2)
+        val = np.mean(pixels_max - pixels_min)
         if val > grey_cutoff:
             if bands[-1] == 'A' and not alpha_band:
                 return pil_img.convert('RGB')
