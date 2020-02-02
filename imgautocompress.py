@@ -31,7 +31,7 @@ def otsu_threshold(hist):
     return level
 
 
-def auto_downgrade(pil_img, thumb_size=128, grey_cutoff=5, bw_ratio=0.99):
+def auto_downgrade(pil_img, thumb_size=128, grey_cutoff=0.5, bw_ratio=0.99):
     mode = pil_img.mode
     if mode == '1' and mode not in ('L', 'LA', 'RGB', 'RGBA'):
         # ignore special modes
@@ -47,7 +47,7 @@ def auto_downgrade(pil_img, thumb_size=128, grey_cutoff=5, bw_ratio=0.99):
         if all(x == 255 for x in pil_img.getdata(len(bands) - 1)):
             alpha_band = False
     if bands[:3] == ('R', 'G', 'B'):
-        thumb = pil_img.resize((thumb_size,thumb_size), resample=Image.NEAREST)
+        thumb = pil_img.resize((thumb_size,thumb_size), resample=Image.BILINEAR)
         pixels = np.array(thumb.getdata(), dtype=float)[:, :3]
         pixels_max = np.max(pixels, axis=1)
         pixels_min = np.min(pixels, axis=1)
@@ -73,7 +73,7 @@ def auto_downgrade(pil_img, thumb_size=128, grey_cutoff=5, bw_ratio=0.99):
     return pil_img
 
 
-def auto_encode(fp, quality=95, thumb_size=128, grey_cutoff=5, bw_ratio=0.99):
+def auto_encode(fp, quality=95, thumb_size=128, grey_cutoff=0.5, bw_ratio=0.99):
     if isinstance(fp, str):
         with open(fp, 'rb') as f:
             orig_data = f.read()
