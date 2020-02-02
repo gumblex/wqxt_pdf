@@ -330,7 +330,7 @@ class WQXTDownloader:
             author = None
         contents = self.json_call(bookid, "https://lib-nuanxin.wqxuetang.com/v1/book/catatree?bid=%s")
         sizes = self.json_call(bookid, "https://lib-nuanxin.wqxuetang.com/page/size/?bid=%s")
-        jwtkey = self.json_call(bookid, "https://lib-nuanxin.wqxuetang.com/v1/read/k?bid=%s")
+        jwtkey = self.json_call(bookid, "https://lib-nuanxin.wqxuetang.com/v1/read/k?bid=%s", cache=False)
         page_num = int(metadata['pages'])
         images = [None] * page_num
         tasks = collections.deque(range(1, page_num+1))
