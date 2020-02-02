@@ -3,3 +3,4 @@ Pillow
 numpy
 img2pdf
 pyjwt
+pdfrw
