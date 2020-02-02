@@ -60,7 +60,11 @@ def generate_pdf_outline(pdf, contents, parent=None):
         return parent
     first = prev = None
     for k, row in enumerate(contents):
-        page = pdf.writer.pagearray[int(row['pnum'])-1]
+        try:
+            page = pdf.writer.pagearray[int(row['pnum'])-1]
+        except IndexError:
+            # bad bookmark
+            continue
         bookmark = PdfDict(
             Parent=parent,
             Title=row['label'],
