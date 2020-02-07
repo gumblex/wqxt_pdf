@@ -355,7 +355,9 @@ class WQXTDownloader:
                 logging.exception('%s: %s/%s', bookid, i, page_num)
                 time.sleep(1)
         logging.info('%s: Generating PDF', bookid)
-        with open("%s-%s.pdf" % (bookid, title.replace('/', '_')), "wb") as f:
+        filename = "%s-%s.pdf" % (
+            bookid, title.replace('/', '_').replace(':', '：'))
+        with open(filename, "wb") as f:
             pdf_convert(
                 images,
                 title=metadata['name'],
