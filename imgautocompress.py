@@ -31,7 +31,7 @@ def otsu_threshold(hist):
     return level
 
 
-def auto_downgrade(pil_img, thumb_size=128, grey_cutoff=1, bw_ratio=0.99):
+def auto_downgrade(pil_img, thumb_size=128, grey_cutoff=1, bw_ratio=0.99, bw_supersample=1):
     mode = pil_img.mode
     if mode == '1' and mode not in ('L', 'LA', 'RGB', 'RGBA'):
         # ignore special modes
@@ -65,15 +65,23 @@ def auto_downgrade(pil_img, thumb_size=128, grey_cutoff=1, bw_ratio=0.99):
         return pil_img
     hist = pil_img.histogram()[:256]
     if np.average(_PIXWEIGHT, weights=hist) > bw_ratio:
-        #threshold = otsu_threshold(hist)
-        #pil_img = pil_img.point(lambda p: p > threshold and 255)
-        return pil_img.convert('1', dither=Image.NONE)
+        if bw_supersample != 1:
+            width, height = pil_img.size
+            width = round(width * bw_supersample)
+            height = round(height * bw_supersample)
+            scaled = pil_img.resize((width, height), resample=Image.BICUBIC)
+        else:
+            scaled = pil_img
+        threshold = otsu_threshold(hist)
+        if 50 < threshold < 250:  # resonable range
+            scaled = scaled.point(lambda p: p > threshold and 255)
+        return scaled.convert('1', dither=Image.NONE)
     if bands[-1] == 'A':
         return pil_img.convert('L')
     return pil_img
 
 
-def auto_encode(fp, quality=95, thumb_size=128, grey_cutoff=1, bw_ratio=0.99):
+def auto_encode(fp, quality=95, thumb_size=128, grey_cutoff=1, bw_ratio=0.99, bw_supersample=1):
     if isinstance(fp, str):
         with open(fp, 'rb') as f:
             orig_data = f.read()
@@ -97,7 +105,7 @@ def auto_encode(fp, quality=95, thumb_size=128, grey_cutoff=1, bw_ratio=0.99):
         out_im.save(buf, 'PNG', optimize=True)
     else:
         out_format = 'JPEG'
-        out_im.convert('RGB').save(buf, 'JPEG', quality=95, optimize=True)
+        out_im.convert('RGB').save(buf, 'JPEG', quality=quality, optimize=True)
     out_data = buf.getvalue()
     if len(out_data) > orig_size:
         if out_im.mode == im.mode:
